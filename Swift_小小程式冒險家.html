@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swift 小小程式冒險家 🚀 | 用寫程式打造屬於你的第一款 iOS App</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts: Comfortaa & Noto Sans TC -->
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        swift: '#FA7343',
+                        swiftDark: '#E05626',
+                        sunYellow: '#FCD34D',
+                        mintGreen: '#34D399',
+                        skyBlue: '#60A5FA',
+                        sweetPink: '#F472B6',
+                        hillGreen: '#4ADE80',
+                        bgSoft: '#FFFBEB'
+                    },
+                    fontFamily: {
+                        child: ['"Comfortaa"', '"Noto Sans TC"', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'fun': '0 8px 0px 0px rgba(0, 0, 0, 0.12)',
+                        'fun-lg': '0 12px 0px 0px rgba(0, 0, 0, 0.15)',
+                        'swift': '0 8px 0px 0px #C84218',
+                        'green': '0 8px 0px 0px #059669',
+                        'blue': '0 8px 0px 0px #2563EB',
+                        'pink': '0 8px 0px 0px #DB2777',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Comfortaa', 'Noto Sans TC', sans-serif;
+            background-color: #FAF8F5;
+            background-image: radial-gradient(#FDE68A 1.8px, transparent 1.8px);
+            background-size: 26px 26px;
+        }
+
+        /* Cute Floating & Pulsing Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(3deg); }
+        }
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float-slow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(-2deg); }
+        }
+        .animate-float-slow {
+            animation: float-slow 5s ease-in-out infinite;
+        }
+
+        @keyframes bounce-gentle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-bounce-gentle {
+            animation: bounce-gentle 2.5s ease-in-out infinite;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FEF3C7;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FA7343;
+            border-radius: 6px;
+        }
+
+        /* Code Syntax Highlighting colors */
+        .code-syntax-keyword { color: #F472B6; font-weight: bold; }
+        .code-syntax-string { color: #34D399; }
+        .code-syntax-func { color: #60A5FA; font-weight: bold; }
+        .code-syntax-comment { color: #9CA3AF; font-style: italic; }
+        .code-syntax-var { color: #FBBF24; }
+    </style>
+</head>
+<body class="text-gray-800 antialiased selection:bg-swift selection:text-white">
+
+    <!-- Navigation Bar -->
+    <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b-4 border-amber-200 px-4 py-3">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="scrollToSection('hero')">
+                <div class="w-11 h-11 bg-swift rounded-2xl flex items-center justify-center text-white text-2xl shadow-md rotate-[-6deg] hover:rotate-0 transition-transform">
+                    🐣
+                </div>
+                <span class="text-xl md:text-2xl font-black text-swift tracking-wide">Swift 小小冒險家</span>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-6 font-bold text-gray-700 text-sm">
+                <a href="#hero" class="hover:text-swift transition-colors">首頁 🚀</a>
+                <a href="#why-swift" class="hover:text-swift transition-colors">四大神器 🍎</a>
+                <a href="#roadmap" class="hover:text-swift transition-colors">闖關地圖 🗺️</a>
+                <a href="#playground" class="hover:text-swift transition-colors">Swift 實驗室 📱</a>
+                <a href="#badges" class="hover:text-swift transition-colors">成就勳章 🏆</a>
+            </div>
+
+            <button onclick="scrollToSection('playground')" class="bg-swift hover:bg-swiftDark text-white font-bold px-5 py-2.5 rounded-full shadow-swift hover:translate-y-1 hover:shadow-none active:translate-y-2 transition-all flex items-center gap-2 text-sm">
+                <span>試玩 Swift</span> 🎮
+            </button>
+        </div>
+    </nav>
+
+    <!-- 1. Hero 頂部 Banner -->
+    <section id="hero" class="relative overflow-hidden py-12 lg:py-20 px-4">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                <div class="inline-flex items-center gap-2 bg-amber-100 border-2 border-amber-300 text-amber-800 px-4 py-1.5 rounded-full text-sm font-black animate-bounce-gentle">
+                    <span>🌟 專為小朋友設計的 iOS App 開發第一課！</span>
+                </div>
+                
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 leading-tight tracking-tight">
+                    Swift 小小程式冒險家！ <span class="inline-block animate-bounce">🚀</span>
+                </h1>
+                
+                <p class="text-lg sm:text-xl text-gray-600 font-bold leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                    用寫程式打造屬於你的第一款 iOS App！<br class="hidden sm:inline">
+                    像堆積木一樣有趣，讓創意在 iPhone 與 iPad 上動起來！
+                </p>
+
+                <div class="flex flex-wrap gap-4 justify-center lg:justify-start pt-2">
+                    <button onclick="scrollToSection('playground')" class="bg-swift hover:bg-swiftDark text-white text-lg font-black px-8 py-4 rounded-2xl shadow-swift hover:translate-y-1 hover:shadow-none active:translate-y-2 transition-all flex items-center gap-3 group">
+                        <span>開始冒險</span>
+                        <span class="group-hover:translate-x-1 transition-transform">🎮</span>
+                    </button>
+                    
+                    <button onclick="scrollToSection('roadmap')" class="bg-skyBlue hover:bg-blue-500 text-white text-lg font-black px-8 py-4 rounded-2xl shadow-blue hover:translate-y-1 hover:shadow-none active:translate-y-2 transition-all flex items-center gap-3 group">
+                        <span>闖關地圖</span>
+                        <span class="group-hover:rotate-12 transition-transform">🗺️</span>
+                    </button>
+                </div>
+
+                <!-- Features Quick Tags -->
+                <div class="pt-4 flex items-center justify-center lg:justify-start gap-6 text-sm font-bold text-gray-500">
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-emerald-500 text-lg">✓</span> 拖拽與積木思維
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-emerald-500 text-lg">✓</span> 即時模擬體驗
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-emerald-500 text-lg">✓</span> 趣味遊戲化闖關
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mascot Mascot Zone (Swiftie 🐣) -->
+            <div class="lg:col-span-5 flex justify-center relative">
+                <!-- Background Glow -->
+                <div class="absolute inset-0 bg-gradient-to-r from-orange-300 to-yellow-200 rounded-full blur-3xl opacity-50 transform scale-90"></div>
+                
+                <div class="relative bg-white border-4 border-amber-300 p-8 rounded-3xl shadow-fun-lg animate-float max-w-sm w-full text-center">
+                    <div class="relative inline-block mb-4">
+                        <div class="w-32 h-32 bg-amber-100 rounded-full flex items-center justify-center text-7xl mx-auto shadow-inner border-4 border-amber-200">
+                            🐣
+                        </div>
+                        <span class="absolute -bottom-2 -right-2 bg-swift text-white text-xs font-black px-3 py-1 rounded-full shadow-md">
+                            吉祥物 Swiftie
+                        </span>
+                    </div>
+                    
+                    <h3 class="text-xl font-black text-gray-800 mb-2">哈囉！我是 Swiftie！</h3>
+                    <p class="text-sm text-gray-600 font-bold leading-relaxed bg-amber-50 p-3 rounded-xl border border-amber-200">
+                        「準備好跟我一起在 iOS 的魔法世界裡造城堡了嗎？點擊上方按鈕開啟冒險吧！」
+                    </p>
+
+                    <!-- Decorative elements -->
+                    <span class="absolute -top-4 -left-4 text-3xl animate-spin-slow">⭐</span>
+                    <span class="absolute top-1/2 -right-6 text-3xl">🍎</span>
+                    <span class="absolute -bottom-3 left-8 text-3xl">🧩</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- 2. 四大冒險神器 (Why Swift?) -->
+    <section id="why-swift" class="py-16 px-4 bg-white border-y-4 border-amber-100 relative">
+        <div class="max-w-6xl mx-auto">
+            
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <span class="text-swift font-black text-sm tracking-wider uppercase bg-orange-100 px-3 py-1 rounded-full">Why Learn Swift?</span>
+                <h2 class="text-3xl sm:text-4xl font-black text-gray-900 mt-2">
+                    四大冒險神器 ⚔️
+                </h2>
+                <p class="text-gray-600 font-bold mt-2">為什麼 Swift 是小朋友學習寫 App 的神奇語言？</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <!-- Card 1 -->
+                <div class="bg-amber-50 border-4 border-amber-200 rounded-3xl p-6 shadow-fun hover:-translate-y-2 transition-all duration-300 flex flex-col items-center text-center group">
+                    <div class="w-20 h-20 bg-red-100 rounded-2xl flex items-center justify-center text-4xl mb-4 group-hover:scale-110 transition-transform shadow-inner border-2 border-red-200">
+                        🍎
+                    </div>
+                    <h3 class="text-xl font-black text-gray-800 mb-2">1. 蘋果專屬魔法</h3>
+                    <p class="text-gray-600 text-sm font-bold leading-relaxed">
+                        iPhone, iPad 和 Mac 官方指定的程式語言，寫出來的 App 能直接在手機上玩！
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-emerald-50 border-4 border-emerald-200 rounded-3xl p-6 shadow-fun hover:-translate-y-2 transition-all duration-300 flex flex-col items-center text-center group">
+                    <div class="w-20 h-20 bg-emerald-100 rounded-2xl flex items-center justify-center text-4xl mb-4 group-hover:scale-110 transition-transform shadow-inner border-2 border-emerald-200">
+                        🧩
+                    </div>
+                    <h3 class="text-xl font-black text-gray-800 mb-2">2. 像堆積木一樣簡單</h3>
+                    <p class="text-gray-600 text-sm font-bold leading-relaxed">
+                        語法就像用英文說故事一樣直覺，不需死記硬背複雜程式碼，輕鬆組合功能！
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-blue-50 border-4 border-blue-200 rounded-3xl p-6 shadow-fun hover:-translate-y-2 transition-all duration-300 flex flex-col items-center text-center group">
+                    <div class="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center text-4xl mb-4 group-hover:scale-110 transition-transform shadow-inner border-2 border-blue-200">
+                        ⚡
+                    </div>
+                    <h3 class="text-xl font-black text-gray-800 mb-2">3. 超級快速順暢</h3>
+                    <p class="text-gray-600 text-sm font-bold leading-relaxed">
+                        「Swift」代表飛快！效能極佳，打造動畫與遊戲時體驗超級順暢不卡頓！
+                    </p>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="bg-purple-50 border-4 border-purple-200 rounded-3xl p-6 shadow-fun hover:-translate-y-2 transition-all duration-300 flex flex-col items-center text-center group">
+                    <div class="w-20 h-20 bg-purple-100 rounded-2xl flex items-center justify-center text-4xl mb-4 group-hover:scale-110 transition-transform shadow-inner border-2 border-purple-200">
+                        🛡️
+                    </div>
+                    <h3 class="text-xl font-black text-gray-800 mb-2">4. 安全保護不當機</h3>
+                    <p class="text-gray-600 text-sm font-bold leading-relaxed">
+                        內建貼心的安全機制，如果寫錯會溫柔提示，減少當機狀況，學習超有成就感！
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. 闖關學習地圖 (Learning Roadmap) -->
+    <section id="roadmap" class="py-16 px-4">
+        <div class="max-w-5xl mx-auto">
+            
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <span class="text-skyBlue font-black text-sm tracking-wider uppercase bg-blue-100 px-3 py-1 rounded-full">Learning Roadmap</span>
+                <h2 class="text-3xl sm:text-4xl font-black text-gray-900 mt-2">
+                    闖關學習地圖 🗺️
+                </h2>
+                <p class="text-gray-600 font-bold mt-2">完成 4 個冒險關卡，解鎖你的 App 工程師稱號！</p>
+            </div>
+
+            <!-- Roadmap Cards Container -->
+            <div class="space-y-8 relative before:absolute before:inset-0 before:left-1/2 before:-translate-x-1/2 before:w-2 before:bg-amber-200 before:hidden md:before:block">
+                
+                <!-- Level 1 -->
+                <div class="relative flex flex-col md:flex-row items-center justify-between gap-6 group">
+                    <div class="w-full md:w-5/12 bg-white border-4 border-amber-300 rounded-3xl p-6 shadow-fun group-hover:border-swift transition-all">
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="bg-amber-400 text-white font-black text-xs px-3 py-1 rounded-full uppercase">Level 1</span>
+                            <span class="text-xs text-gray-400 font-bold">第一關</span>
+                        </div>
+                        <h3 class="text-xl font-black text-gray-800 mb-2">遇見 Xcode 與 Swift 魔法小精靈 🧙‍♂️</h3>
+                        <p class="text-gray-600 text-sm font-bold leading-relaxed">
+                            打開蘋果研發工具 Xcode，認識寫程式的畫布，並用程式碼讓 Swiftie 向世界 Say Hello！
+                        </p>
+                    </div>
+
+                    <div class="w-14 h-14 bg-swift border-4 border-white text-white rounded-full flex items-center justify-center font-black text-xl shadow-lg z-10 shrink-0">
+                        1
+                    </div>
+
+                    <div class="w-full md:w-5/12 hidden md:block"></div>
+                </div>
+
+                <!-- Level 2 -->
+                <div class="relative flex flex-col md:flex-row-reverse items-center justify-between gap-6 group">
+                    <div class="w-full md:w-5/12 bg-white border-4 border-mintGreen rounded-3xl p-6 shadow-fun group-hover:border-emerald-500 transition-all">
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="bg-mintGreen text-white font-black text-xs px-3 py-1 rounded-full uppercase">Level 2</span>
+                            <span class="text-xs text-gray-400 font-bold">第二關</span>
+                        </div>
+                        <h3 class="text-xl font-black text-gray-800 mb-2">變數與常數 —— 魔法寶箱的秘密 📦</h3>
+                        <p class="text-gray-600 text-sm font-bold leading-relaxed">
+                            學習把遊戲分數、角色名字存進「魔法寶箱 (var 和 let)」，掌握資料變換的魔法！
+                        </p>
+                    </div>
+
+                    <div class="w-14 h-14 bg-mintGreen border-4 border-white text-white rounded-full flex items-center justify-center font-black text-xl shadow-lg z-10 shrink-0">
+                        2
+                    </div>
+
+                    <div class="w-full md:w-5/12 hidden md:block"></div>
+                </div>
+
+                <!-- Level 3 -->
+                <div class="relative flex flex-col md:flex-row items-center justify-between gap-6 group">
+                    <div class="w-full md:w-5/12 bg-white border-4 border-skyBlue rounded-3xl p-6 shadow-fun group-hover:border-blue-500 transition-all">
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="bg-skyBlue text-white font-black text-xs px-3 py-1 rounded-full uppercase">Level 3</span>
+                            <span class="text-xs text-gray-400 font-bold">第三關</span>
+                        </div>
+                        <h3 class="text-xl font-black text-gray-800 mb-2">SwiftUI 畫面魔法師 —— 設計你的 APP 介面 🎨</h3>
+                        <p class="text-gray-600 text-sm font-bold leading-relaxed">
+                            用 SwiftUI 設計好看的按鈕、漂亮的顏色與圖片，打造專屬於你的 App 互動介面！
+                        </p>
+                    </div>
+
+                    <div class="w-14 h-14 bg-skyBlue border-4 border-white text-white rounded-full flex items-center justify-center font-black text-xl shadow-lg z-10 shrink-0">
+                        3
+                    </div>
+
+                    <div class="w-full md:w-5/12 hidden md:block"></div>
+                </div>
+
+                <!-- Level 4 -->
+                <div class="relative flex flex-col md:flex-row-reverse items-center justify-between gap-6 group">
+                    <div class="w-full md:w-5/12 bg-white border-4 border-sweetPink rounded-3xl p-6 shadow-fun group-hover:border-pink-500 transition-all">
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="bg-sweetPink text-white font-black text-xs px-3 py-1 rounded-full uppercase">Level 4</span>
+                            <span class="text-xs text-gray-400 font-bold">第四關</span>
+                        </div>
+                        <h3 class="text-xl font-black text-gray-800 mb-2">發布到 App Store —— 讓全世界看到你的作品！ 🚀</h3>
+                        <p class="text-gray-600 text-sm font-bold leading-relaxed">
+                            把你的 App 上架到 App Store，讓爸爸媽媽與全世界的好朋友都能在 iPhone 下載點讚！
+                        </p>
+                    </div>
+
+                    <div class="w-14 h-14 bg-sweetPink border-4 border-white text-white rounded-full flex items-center justify-center font-black text-xl shadow-lg z-10 shrink-0">
+                        4
+                    </div>
+
+                    <div class="w-full md:w-5/12 hidden md:block"></div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. 互動 Swift 實驗室 (Interactive Swift Playground Simulator) -->
+    <section id="playground" class="py-16 px-4 bg-amber-100/60 border-y-4 border-amber-200">
+        <div class="max-w-6xl mx-auto">
+            
+            <div class="text-center max-w-2xl mx-auto mb-8">
+                <span class="text-swift font-black text-sm tracking-wider uppercase bg-white px-3 py-1 rounded-full shadow-sm">Playground Simulator</span>
+                <h2 class="text-3xl sm:text-4xl font-black text-gray-900 mt-2">
+                    互動 Swift 實驗室 🧪
+                </h2>
+                <p class="text-gray-600 font-bold mt-2">切換左側 Swift 程式範例，並在右側 iPhone 模擬器即時操作玩玩看！</p>
+            </div>
+
+            <!-- Demo Selector Tabs -->
+            <div class="flex flex-wrap justify-center gap-3 mb-8">
+                <button onclick="loadDemo('hello')" id="btn-hello" class="demo-tab-btn active bg-swift text-white font-bold px-5 py-2.5 rounded-2xl shadow-fun hover:translate-y-0.5 transition-all flex items-center gap-2 text-sm">
+                    <span>👋 哈囉世界</span>
+                </button>
+                <button onclick="loadDemo('counter')" id="btn-counter" class="demo-tab-btn bg-white text-gray-700 hover:bg-amber-50 font-bold px-5 py-2.5 rounded-2xl shadow-fun hover:translate-y-0.5 transition-all flex items-center gap-2 border-2 border-amber-200 text-sm">
+                    <span>🍎 神奇計數器</span>
+                </button>
+                <button onclick="loadDemo('color')" id="btn-color" class="demo-tab-btn bg-white text-gray-700 hover:bg-amber-50 font-bold px-5 py-2.5 rounded-2xl shadow-fun hover:translate-y-0.5 transition-all flex items-center gap-2 border-2 border-amber-200 text-sm">
+                    <span>🎨 顏色魔法</span>
+                </button>
+            </div>
+
+            <!-- Workspace Grid (Left Code / Right Simulator) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                <!-- Left: Swift Code Preview Editor -->
+                <div class="lg:col-span-7 bg-slate-900 rounded-3xl p-6 shadow-fun-lg border-4 border-slate-700 text-white font-mono text-sm leading-relaxed relative">
+                    <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            <span class="text-xs text-slate-400 ml-2 font-sans font-bold">Playground.swift</span>
+                        </div>
+                        <span class="text-xs bg-slate-800 text-amber-400 px-2.5 py-1 rounded-md font-sans font-bold">SwiftUI</span>
+                    </div>
+
+                    <pre id="code-display" class="overflow-x-auto min-h-[280px] text-xs sm:text-sm">
+                        <!-- Code content dynamically injected via JS -->
+                    </pre>
+
+                    <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400 font-sans font-bold">
+                        <span>💡 提示：點擊右側 iPhone 螢幕上的按鈕與 App 互動！</span>
+                        <span class="text-emerald-400 flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> 即時連線中
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Right: Cute iPhone Simulator Frame -->
+                <div class="lg:col-span-5 flex justify-center">
+                    <div class="w-full max-w-[300px] bg-slate-800 p-4 rounded-[45px] shadow-2xl border-4 border-slate-700 relative">
+                        <!-- iPhone Notch / Dynamic Island -->
+                        <div class="w-28 h-5 bg-black rounded-full mx-auto mb-3 flex items-center justify-center">
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-900 ml-auto mr-2"></div>
+                        </div>
+
+                        <!-- iPhone Screen Area -->
+                        <div id="iphone-screen" class="bg-white rounded-[32px] min-h-[430px] p-6 flex flex-col items-center justify-between text-center transition-colors duration-500 border-2 border-slate-100 relative overflow-hidden">
+                            
+                            <!-- Dynamic Content Rendered Here -->
+                            <div id="sim-content" class="w-full my-auto space-y-4">
+                                <!-- Dynamic screen content via JS -->
+                            </div>
+
+                            <!-- iOS Home Indicator Line -->
+                            <div class="w-32 h-1 bg-gray-300 rounded-full mt-auto"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. 成就勳章牆 (Achievements) -->
+    <section id="badges" class="py-16 px-4 bg-white">
+        <div class="max-w-5xl mx-auto">
+            
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <span class="text-sweetPink font-black text-sm tracking-wider uppercase bg-pink-100 px-3 py-1 rounded-full">Achievements</span>
+                <h2 class="text-3xl sm:text-4xl font-black text-gray-900 mt-2">
+                    成就勳章牆 🏆
+                </h2>
+                <p class="text-gray-600 font-bold mt-2">點擊勳章觸發全螢幕繽紛彩色紙屑動畫慶祝！</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                
+                <!-- Badge 1 -->
+                <div onclick="triggerBadgeEffect('Swift 初學者')" class="bg-amber-50 border-4 border-amber-300 rounded-3xl p-6 text-center cursor-pointer hover:scale-105 active:scale-95 transition-all shadow-fun group">
+                    <div class="w-24 h-24 bg-amber-200 rounded-full flex items-center justify-center text-5xl mx-auto mb-4 group-hover:rotate-12 transition-transform shadow-inner border-2 border-amber-300">
+                        🌱
+                    </div>
+                    <span class="inline-block bg-amber-400 text-white text-xs font-black px-3 py-1 rounded-full mb-2">點擊發射彩帶</span>
+                    <h3 class="text-xl font-black text-gray-800">Swift 初學者</h3>
+                    <p class="text-xs text-gray-500 font-bold mt-2">寫下第一行 Swift 程式碼，踏出冒險第一步！</p>
+                    <button class="mt-4 text-xs font-black text-amber-700 bg-amber-200 px-4 py-2 rounded-xl group-hover:bg-amber-300 transition-colors">
+                        解鎖慶祝 ✨
+                    </button>
+                </div>
+
+                <!-- Badge 2 -->
+                <div onclick="triggerBadgeEffect('SwiftUI 藝術家')" class="bg-sky-50 border-4 border-sky-300 rounded-3xl p-6 text-center cursor-pointer hover:scale-105 active:scale-95 transition-all shadow-fun group">
+                    <div class="w-24 h-24 bg-sky-200 rounded-full flex items-center justify-center text-5xl mx-auto mb-4 group-hover:rotate-12 transition-transform shadow-inner border-2 border-sky-300">
+                        🎨
+                    </div>
+                    <span class="inline-block bg-sky-400 text-white text-xs font-black px-3 py-1 rounded-full mb-2">點擊發射彩帶</span>
+                    <h3 class="text-xl font-black text-gray-800">SwiftUI 藝術家</h3>
+                    <p class="text-xs text-gray-500 font-bold mt-2">能用色彩與按鈕擺放，設計出亮眼的 App 介面！</p>
+                    <button class="mt-4 text-xs font-black text-sky-700 bg-sky-200 px-4 py-2 rounded-xl group-hover:bg-sky-300 transition-colors">
+                        解鎖慶祝 ✨
+                    </button>
+                </div>
+
+                <!-- Badge 3 -->
+                <div onclick="triggerBadgeEffect('App 發布大師')" class="bg-pink-50 border-4 border-pink-300 rounded-3xl p-6 text-center cursor-pointer hover:scale-105 active:scale-95 transition-all shadow-fun group">
+                    <div class="w-24 h-24 bg-pink-200 rounded-full flex items-center justify-center text-5xl mx-auto mb-4 group-hover:rotate-12 transition-transform shadow-inner border-2 border-pink-300">
+                        👑
+                    </div>
+                    <span class="inline-block bg-pink-400 text-white text-xs font-black px-3 py-1 rounded-full mb-2">點擊發射彩帶</span>
+                    <h3 class="text-xl font-black text-gray-800">App 發布大師</h3>
+                    <p class="text-xs text-gray-500 font-bold mt-2">成功打造完整 App 並展示給親朋好友！</p>
+                    <button class="mt-4 text-xs font-black text-pink-700 bg-pink-200 px-4 py-2 rounded-xl group-hover:bg-pink-300 transition-colors">
+                        解鎖慶祝 ✨
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- 6. 頁尾 (Footer with Cute Hills Illustration) -->
+    <footer class="relative bg-slate-900 text-white pt-24 pb-12 px-4 overflow-hidden">
+        
+        <!-- SVG Cute Hill & Cloud Background -->
+        <div class="absolute top-0 left-0 right-0 w-full overflow-hidden leading-none pointer-events-none transform -translate-y-1">
+            <svg class="relative block w-full h-16 sm:h-24" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,0 C150,90 350,-40 500,40 C650,120 900,10 1200,40 L1200,0 L0,0 Z" fill="#FFFFFF"></path>
+            </svg>
+        </div>
+
+        <!-- Floating Cloud Illustrations in Footer -->
+        <div class="absolute top-6 left-10 text-white opacity-20 text-4xl animate-float-slow">☁️</div>
+        <div class="absolute top-12 right-12 text-white opacity-20 text-5xl animate-float">☁️</div>
+
+        <div class="max-w-4xl mx-auto text-center space-y-6 relative z-10">
+            
+            <div class="inline-flex items-center gap-2 bg-slate-800 px-5 py-2 rounded-full border border-slate-700 shadow-md">
+                <span class="text-2xl">🐣</span>
+                <span class="font-black text-swift text-base">訂閱 Swift 冒險週報</span>
+            </div>
+
+            <h3 class="text-2xl sm:text-3xl font-black">準備好獲得更多免費 Swift 程式學習關卡嗎？</h3>
+            <p class="text-gray-400 max-w-md mx-auto text-sm font-bold">
+                請爸爸媽媽留下 Email，每週收到最新可愛程式小挑戰！
+            </p>
+
+            <!-- Newsletter Subscription Form -->
+            <form onsubmit="handleSubscribe(event)" class="max-w-md mx-auto flex flex-col sm:flex-row gap-3">
+                <input type="email" id="subscriber-email" required placeholder="輸入家長的 Email 信箱..." class="w-full px-5 py-3.5 rounded-2xl text-gray-800 font-bold focus:outline-none focus:ring-4 focus:ring-swift text-sm">
+                <button type="submit" class="bg-swift hover:bg-swiftDark text-white font-black px-6 py-3.5 rounded-2xl shadow-swift hover:translate-y-0.5 active:translate-y-1 transition-all shrink-0 text-sm">
+                    發送訂閱 🚀
+                </button>
+            </form>
+
+            <div class="pt-10 border-t border-slate-800 text-xs text-gray-500 font-bold flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p>© 2026 Swift 小小程式冒險家. All rights reserved.</p>
+                <div class="flex gap-4">
+                    <a href="#hero" class="hover:text-swift transition-colors">回到頁首 ⬆️</a>
+                    <a href="#playground" class="hover:text-swift transition-colors">回到實驗室 📱</a>
+                </div>
+            </div>
+
+        </div>
+    </footer>
+
+    <!-- Custom Modal Dialog (Never uses alert()) -->
+    <div id="custom-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl border-4 border-amber-300 p-6 max-w-sm w-full text-center shadow-fun-lg space-y-4 animate-bounce-gentle">
+            <div id="modal-icon" class="text-6xl">🎉</div>
+            <h3 id="modal-title" class="text-2xl font-black text-gray-800">成就解鎖！</h3>
+            <p id="modal-desc" class="text-gray-600 font-bold text-sm leading-relaxed">恭喜你獲得勳章！</p>
+            <button onclick="closeModal()" class="bg-swift text-white font-black w-full py-3 rounded-2xl shadow-swift hover:translate-y-0.5 transition-all">
+                知道囉！🚀
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript Interactive Logic -->
+    <script>
+        // State variables for Simulator
+        let currentDemo = 'hello';
+        let isGreetingAlt = false;
+        let appleCount = 3;
+        let colorPalette = ['#FFFFFF', '#FEF3C7', '#E0F2FE', '#FCE7F3', '#DCFCE7'];
+        let colorIndex = 0;
+
+        // Code Snippets for Editor
+        const codeSnippets = {
+            hello: `<span class="code-syntax-keyword">import</span> SwiftUI
+
+<span class="code-syntax-keyword">struct</span> HelloView: <span class="code-syntax-func">View</span> {
+    <span class="code-syntax-keyword">@State</span> <span class="code-syntax-keyword">private</span> <span class="code-syntax-keyword">var</span> message = <span class="code-syntax-string">"Hello, Swift World! 👋"</span>
+    
+    <span class="code-syntax-keyword">var</span> body: <span class="code-syntax-keyword">some</span> View {
+        <span class="code-syntax-func">VStack</span>(spacing: <span class="code-syntax-var">20</span>) {
+            <span class="code-syntax-func">Text</span>(message)
+                .<span class="code-syntax-func">font</span>(.title)
+                .<span class="code-syntax-func">bold</span>()
+            
+            <span class="code-syntax-func">Button</span>(<span class="code-syntax-string">"點我打招呼 🪄"</span>) {
+                message = <span class="code-syntax-string">"歡迎來到 iOS App 世界！✨"</span>
+            }
+            .<span class="code-syntax-func">buttonStyle</span>(.borderedProminent)
+            .<span class="code-syntax-func">tint</span>(.orange)
+        }
+    }
+}`,
+            counter: `<span class="code-syntax-keyword">import</span> SwiftUI
+
+<span class="code-syntax-keyword">struct</span> CounterView: <span class="code-syntax-func">View</span> {
+    <span class="code-syntax-keyword">@State</span> <span class="code-syntax-keyword">private</span> <span class="code-syntax-keyword">var</span> apples = <span class="code-syntax-var">3</span>
+    
+    <span class="code-syntax-keyword">var</span> body: <span class="code-syntax-keyword">some</span> View {
+        <span class="code-syntax-func">VStack</span> {
+            <span class="code-syntax-func">Text</span>(<span class="code-syntax-string">"🍎 籃子有 \\(apples) 個蘋果"</span>)
+            
+            <span class="code-syntax-func">HStack</span> {
+                <span class="code-syntax-func">Button</span>(<span class="code-syntax-string">"採摘 🍎"</span>) { apples += 1 }
+                <span class="code-syntax-func">Button</span>(<span class="code-syntax-string">"吃掉 😋"</span>) { apples -= 1 }
+            }
+        }
+    }
+}`,
+            color: `<span class="code-syntax-keyword">import</span> SwiftUI
+
+<span class="code-syntax-keyword">struct</span> ColorMagicView: <span class="code-syntax-func">View</span> {
+    <span class="code-syntax-keyword">@State</span> <span class="code-syntax-keyword">private</span> <span class="code-syntax-keyword">var</span> bgIndex = <span class="code-syntax-var">0</span>
+    
+    <span class="code-syntax-keyword">var</span> body: <span class="code-syntax-keyword">some</span> View {
+        <span class="code-syntax-func">Button</span>(<span class="code-syntax-string">"變換顏色魔法 🎨"</span>) {
+            bgIndex = (bgIndex + <span class="code-syntax-var">1</span>) % <span class="code-syntax-var">5</span>
+        }
+        .<span class="code-syntax-func">font</span>(.headline)
+        .<span class="code-syntax-func">padding</span>()
+    }
+}`
+        };
+
+        // Smooth Scrolling Function
+        function scrollToSection(id) {
+            const element = document.getElementById(id);
+            if(element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Demo Loader Function for Simulator
+        function loadDemo(demoKey) {
+            currentDemo = demoKey;
+            
+            // Update Active Tab Buttons Styling
+            document.querySelectorAll('.demo-tab-btn').forEach(btn => {
+                btn.classList.remove('bg-swift', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+
+            const activeBtn = document.getElementById(`btn-${demoKey}`);
+            if(activeBtn) {
+                activeBtn.classList.remove('bg-white', 'text-gray-700');
+                activeBtn.classList.add('bg-swift', 'text-white');
+            }
+
+            // Inject Code Text into Editor
+            document.getElementById('code-display').innerHTML = codeSnippets[demoKey];
+
+            // Re-render iPhone Screen
+            renderSimContent();
+        }
+
+        // Render Simulator Content based on current demo
+        function renderSimContent() {
+            const container = document.getElementById('sim-content');
+            
+            if (currentDemo === 'hello') {
+                container.innerHTML = `
+                    <div class="space-y-4 animate-bounce-gentle">
+                        <div class="text-6xl">🐣</div>
+                        <h4 class="text-lg font-black text-gray-800 leading-snug">
+                            ${isGreetingAlt ? "歡迎來到 iOS App 世界！✨" : "Hello, Swift World! 👋"}
+                        </h4>
+                        <p class="text-xs text-gray-500 font-bold">點擊下方按鈕觸發程式變數</p>
+                        <button onclick="toggleGreeting()" class="bg-swift hover:bg-swiftDark text-white font-black px-5 py-2.5 rounded-2xl shadow-swift active:translate-y-1 transition-all text-xs">
+                            點我打招呼 🪄
+                        </button>
+                    </div>
+                `;
+            } else if (currentDemo === 'counter') {
+                let applesHtml = '';
+                for(let i = 0; i < Math.min(appleCount, 10); i++) {
+                    applesHtml += '<span class="text-2xl animate-bounce-gentle">🍎</span>';
+                }
+                if(appleCount === 0) applesHtml = '<span class="text-gray-400 font-bold text-xs">籃子空空的捏... 🥺</span>';
+
+                container.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="bg-amber-50 p-3 rounded-2xl border-2 border-amber-200">
+                            <span class="text-xs text-amber-700 font-bold">蘋果數量計數器</span>
+                            <div class="text-2xl font-black text-gray-800">${appleCount} 個</div>
+                        </div>
+
+                        <div class="flex flex-wrap justify-center gap-1 min-h-[50px] items-center">
+                            ${applesHtml}
+                        </div>
+
+                        <div class="flex justify-center gap-2 pt-2">
+                            <button onclick="changeApple(1)" class="bg-mintGreen text-white font-black px-4 py-2 rounded-xl shadow-green active:translate-y-1 transition-all text-xs">
+                                採摘 🍎 +1
+                            </button>
+                            <button onclick="changeApple(-1)" class="bg-sweetPink text-white font-black px-4 py-2 rounded-xl shadow-pink active:translate-y-1 transition-all text-xs">
+                                吃掉 😋 -1
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else if (currentDemo === 'color') {
+                container.innerHTML = `
+                    <div class="space-y-5">
+                        <div class="text-6xl animate-pulse">🎨</div>
+                        <h4 class="text-base font-black text-gray-800">SwiftUI 顏色魔法</h4>
+                        <p class="text-xs text-gray-500 font-bold">按下按鈕切換 iPhone 螢幕色彩！</p>
+                        <button onclick="changeColorMagic()" class="bg-swift text-white font-black px-5 py-2.5 rounded-2xl shadow-swift active:translate-y-1 transition-all text-xs">
+                            變換顏色魔法 🎨
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Action Trigger Functions
+        function toggleGreeting() {
+            isGreetingAlt = !isGreetingAlt;
+            renderSimContent();
+        }
+
+        function changeApple(delta) {
+            appleCount = Math.max(0, appleCount + delta);
+            renderSimContent();
+        }
+
+        function changeColorMagic() {
+            colorIndex = (colorIndex + 1) % colorPalette.length;
+            document.getElementById('iphone-screen').style.backgroundColor = colorPalette[colorIndex];
+        }
+
+        // Trigger Confetti and Show Modal for Badges
+        function triggerBadgeEffect(badgeTitle) {
+            // Trigger Fullscreen Rainbow Confetti
+            confetti({
+                particleCount: 120,
+                spread: 80,
+                origin: { y: 0.5 }
+            });
+
+            // Show custom modal
+            document.getElementById('modal-icon').innerText = '🏆';
+            document.getElementById('modal-title').innerText = `獲得【${badgeTitle}】！`;
+            document.getElementById('modal-desc').innerText = `太厲害了！你展現了優秀的冒險精神，成功解鎖這個專屬稱號！✨`;
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+
+        function handleSubscribe(e) {
+            e.preventDefault();
+            const email = document.getElementById('subscriber-email').value;
+            
+            confetti({
+                particleCount: 90,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+
+            document.getElementById('modal-icon').innerText = '💌';
+            document.getElementById('modal-title').innerText = `感謝訂閱冒險週報！`;
+            document.getElementById('modal-desc').innerText = `我們已將確認信發送到 ${email}，準備好每週接收有趣的 Swift 挑戰吧！`;
+            document.getElementById('custom-modal').classList.remove('hidden');
+            
+            document.getElementById('subscriber-email').value = '';
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+
+        // Initialize Simulator Default View on Load
+        window.onload = function() {
+            loadDemo('hello');
+        }
+    </script>
+</body>
+</html>
